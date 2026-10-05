@@ -25,6 +25,9 @@ const PLAYER_HUD_SCENE: PackedScene = preload("res://scene/ui/player_hud.tscn")
 ## 刷怪间隔倍率，越小越密（供高难度关卡覆盖）。
 @export var spawnIntervalMultiplier: float = 1.0
 
+## 玩家出生点距画面**后方**边缘的距离。
+@export var playerSpawnBackMargin: float = 180.0
+
 ## 玩家活动范围相对屏幕边缘的内缩量。
 @export var viewMargin: float = 70.0
 
@@ -95,14 +98,18 @@ func _spawnPlayers() -> void:
 	var lateral = getLateral()
 	var lateralSpan = battleCamera.getLateralSpan()
 	var laneWidth = lateralSpan / float(joinedCount)
-	var spawnAhead = battleCamera.getForwardSpan() * 0.15
+	# 出生点放在画面**后方**（不是中央），这样跟随相机不会一开场就把玩家顶到画面最前。
+	var viewRect = battleCamera.getViewRect()
+	var alongA = viewRect.position.dot(forward)
+	var alongB = viewRect.end.dot(forward)
+	var spawnAlong = minf(alongA, alongB) + playerSpawnBackMargin
 	for order in joinedCount:
 		var playerIndex = Game.joinedPlayers[order]
 		var player = PLAYER_SCENE.instantiate()
 		playersRoot.add_child(player)
 		player.setup(playerIndex, Game.selectedCharacters[playerIndex])
 		var lateralOffset = laneWidth * (order + 0.5) - lateralSpan * 0.5
-		player.resetForSpawn(battleCamera.position + forward * spawnAhead + lateral * lateralOffset)
+		player.resetForSpawn(forward * spawnAlong + lateral * lateralOffset)
 		players.append(player)
 
 
@@ -127,7 +134,12 @@ func _getHudPosition(order: int, screenSize: Vector2) -> Vector2:
 
 
 func _updateCameraAndBounds(delta: float) -> void:
-	battleCamera.advance(delta)
+	var forward = getForward()
+	var frontAlong = -INF
+	for player in players:
+		if is_instance_valid(player) and player.isAlive:
+			frontAlong = maxf(frontAlong, player.global_position.dot(forward))
+	battleCamera.advance(delta, frontAlong)
 	var viewRect = battleCamera.getViewRect().grow(-viewMargin)
 	for player in players:
 		if is_instance_valid(player):

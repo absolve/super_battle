@@ -26,7 +26,6 @@ SceneTransition="*res://autoload/scene_transition.tscn"
 
 [display]
 
-; 横版 1920x1080；关卡可纵向或横向推进（滚动方向由关卡数据决定）。
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/window_width_override=960

@@ -1,18 +1,18 @@
 class_name BattleCamera
 extends Camera2D
-## 战斗相机：沿关卡前进方向**匀速推进**，绝不后退。
+## 战斗相机：**跟着玩家走** —— 玩家往前推进，相机才前进；玩家停下，相机也停下。
 ##
 ## **滚动方向由关卡决定**（[member scrollAxis]）：纵向 = 画面向上推进（经典竖版，敌人从上方涌入），
-## 横向 = 画面向右推进。相机本身不跟随玩家 —— 关卡节奏是固定的（速度由 [member scrollSpeed] 决定），
-## 玩家在屏幕范围内自由走位，走得快只会站到画面最前，不会被敌人甩掉，也不会缩短关卡时长。
+## 横向 = 画面向右推进。相机永远不后退（[member travelled] 只增不减）。
 
 enum ScrollAxis {
 	VERTICAL,
 	HORIZONTAL,
 }
 
-## 自动推进速度（像素 / 秒）。关卡节奏由它决定：屏幕匀速前进，玩家在屏内自由走位。
-@export var scrollSpeed: float = 90.0
+## 相机中心停在玩家**前方**（前进方向）的比例 × 画面长度。
+## 0.3 = 相机中心在玩家前方 30% 画面长度处，于是玩家位于画面**后方约 20%** 处、前方留出 80% 视野。
+@export var leadRatio: float = 0.3
 
 ## 滚动方向，在关卡场景里设置。
 @export var scrollAxis: ScrollAxis = ScrollAxis.VERTICAL
@@ -78,8 +78,12 @@ func getViewRect() -> Rect2:
 	return Rect2(position - viewSize * 0.5, viewSize)
 
 
-## 每帧匀速推进。相机**不跟随玩家**：玩家被限制在屏内走位，
-## 因此「冲得快」只会让你站到画面最前，不会缩短关卡时长，也不会把敌人甩到身后。
-func advance(delta: float) -> void:
-	travelled = clampf(travelled + scrollSpeed * delta, 0.0, travelLength)
+## 跟随最靠前的玩家推进（相机只前进不后退）。
+## [param frontAlong] 为最靠前**存活**玩家在前进方向上的投影；没有存活玩家时传 -INF，相机保持不动。
+## 相机中心停在玩家前方 [code]getForwardSpan() * leadRatio[/code] 处，
+## 于是玩家位于画面后方约 20% 处、前方留出大部分视野。
+func advance(_delta: float, frontAlong: float) -> void:
+	if frontAlong > -INF:
+		var lead = getForwardSpan() * leadRatio
+		travelled = clampf(maxf(travelled, frontAlong + lead - startDistance), 0.0, travelLength)
 	position = forward * (startDistance + travelled)
