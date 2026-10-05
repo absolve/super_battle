@@ -1,0 +1,29 @@
+keys,en,zh
+_Title,SUPER BATTLE,超级战场
+_PressStart,Press FIRE to Start,按开火键开始
+_SelectTitle,Select Character,选择角色
+_SelectJoin,Press FIRE to Join,按开火键加入
+_SelectReady,READY,已准备
+_SelectHint,P1 WASD+G / P2 Arrows+Numpad1 / P3 IJKL+U / P4 Numpad8456+7  |  FIRE join  LEFT-RIGHT change  BOMB quit  START begin
+_Paused,PAUSED,暂停
+_Resume,Resume,继续
+_Restart,Restart,重新开始
+_QuitToTitle,Quit to Title,返回标题
+_LevelCleared,LEVEL CLEARED,关卡完成
+_GameOver,GAME OVER,任务失败
+_Character_commando,Commando,突击兵
+_Character_commandoDesc,Balanced speed and firepower.,速度与火力均衡的全能兵种。
+_Character_gunner,Gunner,机枪手
+_Character_gunnerDesc,High rate of fire heavy trooper.,高射速重装兵 火力压制。
+_Character_demo,Demolition,爆破手
+_Character_demoDesc,Shotgun and rockets for close range.,霰弹与火箭 擅长近距离清场。
+_Character_medic,Medic,医疗兵
+_Character_medicDesc,Fastest soldier with extra lives.,跑得最快 生存力强。
+_Weapon_pistol,Pistol,手枪
+_Weapon_machineGun,Machine Gun,机枪
+_Weapon_shotgun,Shotgun,霰弹枪
+_Weapon_rocket,Rocket,火箭筒
+_Weapon_flame,Flame,火焰喷射器
+_Level_1,Stage 1 Road to the Front,第一关 前线之路
+_Level_2,Stage 2 Bridge Assault,第二关 强攻大桥
+_Level_3,Stage 3 Enemy Base,第三关 敌军要塞

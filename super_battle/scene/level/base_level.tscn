@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://script/level/base_level.gd" id="1_level"]
+[ext_resource type="Script" path="res://script/level/battle_camera.gd" id="2_camera"]
+[ext_resource type="PackedScene" path="res://scene/ui/pause_menu.tscn" id="3_pause"]
+
+[node name="BaseLevel" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="BattleCamera" type="Camera2D" parent="."]
+position = Vector2(0, 540)
+process_callback = 0
+script = ExtResource("2_camera")
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="HudLayer" type="CanvasLayer" parent="."]
+
+[node name="ResultLabel" type="Label" parent="HudLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 90
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PauseMenu" parent="HudLayer" instance=ExtResource("3_pause")]
+visible = false
