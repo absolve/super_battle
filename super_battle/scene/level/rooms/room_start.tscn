@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://script/level/level_room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scene/enemy/grunt.tscn" id="2_grunt"]
+[ext_resource type="Script" path="res://script/level/level_obstacle.gd" id="4_obstacle"]
+[ext_resource type="PackedScene" path="res://scene/pickups/pickup.tscn" id="4_gun"]
+
+[sub_resource type="RectangleShape2D" id="Rect_160x120"]
+size = Vector2(160, 120)
+
+[node name="RoomStart" type="Node2D"]
+z_index = -5
+script = ExtResource("1_room")
+roomId = "start"
+groundColor = Color(0.2, 0.224, 0.255, 1)
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="CrateLeft" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-760, -300)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("4_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/CrateLeft"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/CrateLeft"]
+shape = SubResource("Rect_160x120")
+
+[node name="CrateRight" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(760, -300)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("4_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/CrateRight"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/CrateRight"]
+shape = SubResource("Rect_160x120")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="GruntLeft" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-300, -820)
+
+[node name="GruntRight" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(340, -900)
+
+[node name="Pickups" type="Node2D" parent="."]
+
+[node name="GunBox" parent="Pickups" instance=ExtResource("4_gun")]
+position = Vector2(0, -600)
+weaponType = 2

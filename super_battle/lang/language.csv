@@ -24,6 +24,31 @@ _Weapon_machineGun,Machine Gun,机枪
 _Weapon_shotgun,Shotgun,霰弹枪
 _Weapon_rocket,Rocket,火箭筒
 _Weapon_flame,Flame,火焰喷射器
-_Level_1,Stage 1 Road to the Front,第一关 前线之路
-_Level_2,Stage 2 Bridge Assault,第二关 强攻大桥
-_Level_3,Stage 3 Enemy Base,第三关 敌军要塞
+_Weapon_sniper,Sniper Rifle,狙击枪
+_Weapon_tesla,Tesla Gun,电磁枪
+_Pickup_ammoPack,Ammo Pack,弹药包
+_Level_201,Stage 201 Container Maze,201 集装箱迷宫
+_Level_202,Stage 202 Shipyard,202 造船厂
+_Level_203,Stage 203 Luoxing Channel,203 罗星塔水道
+_Level_209,Boss 209 Wreck Maw,Boss 209 舰骸 · 深海之喉
+_District_2,District Mawei Naval Yard,马尾区 船政残骸
+_District_1,District Changle Airport,长乐区 空港坠落
+_District_4,District Cangshan Campus,仓山区 千面校园
+_District_5,District Taijiang Core,台江区 钢铁中枢
+_District_3,District Jinan Hatchery,晋安区 鼓山孵化林
+_District_6,District Gulou Abyss,鼓楼区 渊心决战
+_HUD_Lives,Lives,命
+_HUD_Score,Score,分数
+_HUD_Stamina,Roll,翻滚
+_ContinueTitle,CONTINUE?,是否继续游戏？
+_ContinueHint,FIRE = continue · BOMB = give up · timeout continues automatically,开火键继续 · 必杀键放弃 · 不操作到点自动继续
+_ContinueYes,Continue,继续游戏
+_ContinueNo,Give Up,放弃
+_CampaignTitle,CAMPAIGN MAP,战役地图
+_CampaignHint,FIRE = deploy · BOMB = title,开火键出击 · 必杀键回标题
+_CampaignTarget,Target,出击目标
+_StatusCleared,Cleared,已控制
+_StatusCurrent,Current,当前
+_StatusLocked,Locked,未解锁
+_StatusTodo,Not ready,待做
+_StatusFinished,All districts cleared,六区全控

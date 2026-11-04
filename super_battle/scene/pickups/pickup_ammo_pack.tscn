@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scene/pickups/pickup.tscn" id="1_base"]
+
+[node name="PickupAmmoPack" instance=ExtResource("1_base")]
+pickupType = 1
+tintColor = Color(0.855, 0.878, 0.918, 1)

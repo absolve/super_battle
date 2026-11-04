@@ -26,3 +26,4 @@ mono_crash.*.json
 # *.pck
 
 .vscode/
+/super_battle/tools

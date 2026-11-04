@@ -1,6 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://script/player/player_character.gd" id="1_player"]
+[ext_resource type="Script" path="res://script/fsm/state_machine.gd" id="2_statemachine"]
+[ext_resource type="Script" path="res://script/player/player_states/player_idle.gd" id="3_idle"]
+[ext_resource type="Script" path="res://script/player/player_states/player_roll.gd" id="4_roll"]
+[ext_resource type="Script" path="res://script/player/player_states/player_dead.gd" id="5_dead"]
+[ext_resource type="Script" path="res://script/player/player_states/player_eliminated.gd" id="6_eliminated"]
+[ext_resource type="Script" path="res://script/fx/hit_flash.gd" id="7_hitflash"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 20.0
@@ -20,3 +26,29 @@ color = Color(0.9, 0.9, 0.95, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_player")
+
+[node name="Weapons" type="Node2D" parent="."]
+
+[node name="HitFlash" type="Node" parent="."]
+script = ExtResource("7_hitflash")
+targets = Array[NodePath]([NodePath("..")])
+
+[node name="RespawnTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("2_statemachine")
+initialState = &"Idle"
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("3_idle")
+
+[node name="Roll" type="Node" parent="StateMachine"]
+script = ExtResource("4_roll")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("5_dead")
+
+[node name="Eliminated" type="Node" parent="StateMachine"]
+script = ExtResource("6_eliminated")

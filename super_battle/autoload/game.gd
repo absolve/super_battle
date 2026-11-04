@@ -27,6 +27,8 @@ enum WeaponType {
 	SHOTGUN,
 	ROCKET,
 	FLAME,
+	SNIPER,
+	TESLA,
 }
 
 enum CharacterType {
@@ -37,6 +39,9 @@ enum CharacterType {
 }
 
 const MAX_PLAYERS: int = 4
+
+## 每人默认生命数（阵亡扣 1，命尽进续关画面；见 level_design §6）。
+const PLAYER_LIVES_DEFAULT: int = 2
 
 ## 4 名玩家固定配色，HUD、角色描边、复活点标记共用，下标即玩家槽位。
 const PLAYER_COLORS: Array[Color] = [
@@ -82,8 +87,14 @@ const characterInfo = {
 	},
 }
 
-## 武器数据表。[code]ammo[/code] 为 -1 表示无限弹药。
-## [code]spreadDeg[/code] 为散射总角度，多弹丸时每颗均分在散射区间内。
+## 武器数据表（7 种定稿，见 feature_design.md §4.2）。
+## [code]ammo[/code] 为 -1 表示无限弹药；[code]spreadDeg[/code] 是散射总角度，多弹丸时均分在区间内。
+## [code]bulletLifeTime[/code] 就是**有效射程**的表达方式：子弹存活秒数，
+## 射程 = [code]bulletSpeed × bulletLifeTime[/code]（弹丸类统一这么写，激光类以后改用 [code]rangePx[/code]）。
+## 有特殊命中效果的武器在这里加两条：[code]scene[/code] 指向自己的继承场景
+## （[code]rocket.tscn[/code] / [code]tesla.tscn[/code]），以及该效果独有的数值
+## （[code]explosionDamage[/code] / [code]explosionRadius[/code] / [code]armorMulti[/code]）。
+## 这些键只有对应的子武器脚本会读，别塞没人读的字段。
 const weaponInfo = {
 	WeaponType.PISTOL: {
 		"nameKey": "_Weapon_pistol",
@@ -94,6 +105,7 @@ const weaponInfo = {
 		"spreadDeg": 0.0,
 		"ammo": -1,
 		"pierce": 0,
+		"bulletLifeTime": 1.33,
 	},
 	WeaponType.MACHINE_GUN: {
 		"nameKey": "_Weapon_machineGun",
@@ -104,6 +116,7 @@ const weaponInfo = {
 		"spreadDeg": 6.0,
 		"ammo": 300,
 		"pierce": 0,
+		"bulletLifeTime": 1.4,
 	},
 	WeaponType.SHOTGUN: {
 		"nameKey": "_Weapon_shotgun",
@@ -114,16 +127,21 @@ const weaponInfo = {
 		"spreadDeg": 32.0,
 		"ammo": 60,
 		"pierce": 0,
+		"bulletLifeTime": 0.51,
 	},
 	WeaponType.ROCKET: {
 		"nameKey": "_Weapon_rocket",
-		"damage": 90,
+		"scene": "res://scene/weapon/rocket.tscn",
+		"damage": 60,
 		"fireInterval": 0.9,
 		"bulletSpeed": 620.0,
 		"bulletCount": 1,
 		"spreadDeg": 0.0,
 		"ammo": 20,
-		"pierce": 1,
+		"pierce": 0,
+		"bulletLifeTime": 1.77,
+		"explosionDamage": 90,
+		"explosionRadius": 140.0,
 	},
 	WeaponType.FLAME: {
 		"nameKey": "_Weapon_flame",
@@ -134,6 +152,31 @@ const weaponInfo = {
 		"spreadDeg": 14.0,
 		"ammo": 400,
 		"pierce": 2,
+		"bulletLifeTime": 0.46,
+	},
+	WeaponType.SNIPER: {
+		"nameKey": "_Weapon_sniper",
+		"damage": 120,
+		"fireInterval": 1.1,
+		"bulletSpeed": 1800.0,
+		"bulletCount": 1,
+		"spreadDeg": 0.0,
+		"ammo": 24,
+		"pierce": 99,
+		"bulletLifeTime": 1.22,
+	},
+	WeaponType.TESLA: {
+		"nameKey": "_Weapon_tesla",
+		"scene": "res://scene/weapon/tesla.tscn",
+		"damage": 26,
+		"fireInterval": 0.35,
+		"bulletSpeed": 1400.0,
+		"bulletCount": 1,
+		"spreadDeg": 0.0,
+		"ammo": 80,
+		"pierce": 0,
+		"bulletLifeTime": 1.14,
+		"armorMulti": 2.5,
 	},
 }
 
@@ -147,7 +190,7 @@ var selectedCharacters: Array[int] = [-1, -1, -1, -1]
 var playerScores: Array[int] = [0, 0, 0, 0]
 
 ## 每个槽位的剩余生命数（阵亡扣 1，全员归零时进入续关）。
-var playerLives: Array[int] = [2, 2, 2, 2]
+var playerLives: Array[int] = [PLAYER_LIVES_DEFAULT, PLAYER_LIVES_DEFAULT, PLAYER_LIVES_DEFAULT, PLAYER_LIVES_DEFAULT]
 
 
 func _ready() -> void:

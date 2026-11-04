@@ -1,0 +1,133 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://script/level/level_room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scene/enemy/grunt.tscn" id="2_grunt"]
+[ext_resource type="Script" path="res://script/level/level_obstacle.gd" id="5_obstacle"]
+[ext_resource type="PackedScene" path="res://scene/pickups/pickup_ammo_pack.tscn" id="4_ammo"]
+[ext_resource type="PackedScene" path="res://scene/enemy/heavy.tscn" id="8_heavy"]
+
+[sub_resource type="RectangleShape2D" id="Rect_200x160"]
+size = Vector2(200, 160)
+
+[sub_resource type="RectangleShape2D" id="Rect_120x520"]
+size = Vector2(120, 520)
+
+[node name="RoomCover" type="Node2D"]
+z_index = -5
+script = ExtResource("1_room")
+roomId = "cover"
+groundColor = Color(0.2, 0.224, 0.255, 1)
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="WallLeft" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-740, -440)
+collision_layer = 32
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/WallLeft"]
+polygon = PackedVector2Array(-60, -260, 60, -260, 60, 260, -60, 260)
+color = Color(0.353, 0.306, 0.267, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/WallLeft"]
+shape = SubResource("Rect_120x520")
+
+[node name="WallRight" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(740, -440)
+collision_layer = 32
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/WallRight"]
+polygon = PackedVector2Array(-60, -260, 60, -260, 60, 260, -60, 260)
+color = Color(0.353, 0.306, 0.267, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/WallRight"]
+shape = SubResource("Rect_120x520")
+
+[node name="Crate1" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-420, -260)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate1"]
+polygon = PackedVector2Array(-100, -80, 100, -80, 100, 80, -100, 80)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate1"]
+shape = SubResource("Rect_200x160")
+
+[node name="Crate2" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(420, -260)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate2"]
+polygon = PackedVector2Array(-100, -80, 100, -80, 100, 80, -100, 80)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate2"]
+shape = SubResource("Rect_200x160")
+
+[node name="Crate3" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-420, -620)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate3"]
+polygon = PackedVector2Array(-100, -80, 100, -80, 100, 80, -100, 80)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate3"]
+shape = SubResource("Rect_200x160")
+
+[node name="Crate4" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(420, -620)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate4"]
+polygon = PackedVector2Array(-100, -80, 100, -80, 100, 80, -100, 80)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate4"]
+shape = SubResource("Rect_200x160")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Grunt1" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-150, -400)
+
+[node name="Grunt2" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(150, -520)
+
+[node name="Grunt3" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-640, -800)
+
+[node name="Grunt4" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(640, -820)
+
+[node name="Grunt5" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(0, -900)
+
+[node name="Grunt6" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-300, -1000)
+
+[node name="Pickups" type="Node2D" parent="."]
+
+[node name="AmmoPack" parent="Pickups" instance=ExtResource("4_ammo")]
+position = Vector2(0, -900)
+
+[node name="HeavyA" parent="Enemies" instance=ExtResource("8_heavy")]
+position = Vector2(0.0, -720.0)

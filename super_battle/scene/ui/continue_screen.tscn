@@ -1,0 +1,80 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://script/ui/continue_screen.gd" id="1_continue"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.141, 0.133, 0.204, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="ContinueScreen" type="Control"]
+process_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_continue")
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="Center" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -240.0
+offset_right = 300.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Panel" type="Panel" parent="Center"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="TitleLabel" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "CONTINUE?"
+horizontal_alignment = 1
+
+[node name="CountLabel" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 92
+theme_override_colors/font_color = Color(0.953, 0.639, 0.106, 1)
+text = "10"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "FIRE continue / BOMB give up"
+horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="Center"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "CONTINUE"
+
+[node name="GiveUpButton" type="Button" parent="Center"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "GIVE UP"

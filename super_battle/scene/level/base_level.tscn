@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://script/level/base_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://script/level/battle_camera.gd" id="2_camera"]
-[ext_resource type="PackedScene" path="res://scene/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="Script" path="res://script/level/room_streamer.gd" id="3_streamer"]
+[ext_resource type="PackedScene" path="res://scene/ui/pause_menu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" path="res://scene/ui/continue_screen.tscn" id="5_continue"]
 
 [node name="BaseLevel" type="Node2D"]
 script = ExtResource("1_level")
@@ -12,11 +14,24 @@ position = Vector2(0, 540)
 process_callback = 0
 script = ExtResource("2_camera")
 
+[node name="RoomStreamer" type="Node2D" parent="."]
+script = ExtResource("3_streamer")
+
 [node name="Players" type="Node2D" parent="."]
 
-[node name="Enemies" type="Node2D" parent="."]
-
 [node name="HudLayer" type="CanvasLayer" parent="."]
+
+[node name="HudBar" type="HBoxContainer" parent="HudLayer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 168.0
+grow_horizontal = 2
+theme_override_constants/separation = 12
+alignment = 1
 
 [node name="ResultLabel" type="Label" parent="HudLayer"]
 anchors_preset = 15
@@ -30,5 +45,8 @@ text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PauseMenu" parent="HudLayer" instance=ExtResource("3_pause")]
+[node name="PauseMenu" parent="HudLayer" instance=ExtResource("4_pause")]
+visible = false
+
+[node name="ContinueScreen" parent="HudLayer" instance=ExtResource("5_continue")]
 visible = false

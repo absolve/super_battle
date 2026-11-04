@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scene/weapon/weapon.tscn" id="1_base"]
+[ext_resource type="Script" path="res://script/weapon/tesla_weapon.gd" id="2_tesla"]
+
+[node name="TeslaWeapon" instance=ExtResource("1_base")]
+script = ExtResource("2_tesla")

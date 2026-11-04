@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scene/enemy/grunt.tscn" id="1_base"]
+[ext_resource type="Script" path="res://script/enemy/boss.gd" id="2_boss"]
+
+[node name="Boss" instance=ExtResource("1_base")]
+script = ExtResource("2_boss")
+enemyId = "boss_shipwreck"
+maxHp = 4500
+moveSpeed = 60.0
+contactDamage = 30
+contactDamageInterval = 0.9
+stopDistance = 120.0
+scoreReward = 5000
+armorType = 1
+scale = Vector2(2.6, 2.6)
+
+[node name="Body" parent="."]
+color = Color(0.62, 0.24, 0.78, 1)

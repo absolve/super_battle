@@ -6,6 +6,9 @@ extends Control
 
 const SLOT_SCENE: PackedScene = preload("res://scene/ui/character_slot.tscn")
 
+## 选人完成先进**大地图**：战役进度（打到哪一区哪一关）要在动手前看得见。
+const CAMPAIGN_MAP_PATH: String = "res://scene/ui/campaign_map.tscn"
+
 @onready var titleLabel: Label = $Title
 @onready var slotRow: HBoxContainer = $SlotRow
 @onready var hintLabel: Label = $Hint
@@ -18,8 +21,7 @@ var slots: Array[Control] = []
 func onStartBattle() -> void:
 	if SceneTransition.isTransitioning:
 		return
-	StageData.currentLevel = 1
-	SceneTransition.changeScene(StageData.getLevelScenePath(StageData.currentLevel))
+	SceneTransition.changeScene(CAMPAIGN_MAP_PATH)
 
 
 func refreshSlots() -> void:

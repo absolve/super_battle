@@ -1,0 +1,100 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://script/level/level_room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scene/enemy/grunt.tscn" id="2_grunt"]
+[ext_resource type="Script" path="res://script/level/level_obstacle.gd" id="5_obstacle"]
+[ext_resource type="PackedScene" path="res://scene/pickups/pickup_ammo_pack.tscn" id="4_ammo"]
+[ext_resource type="PackedScene" path="res://scene/pickups/pickup.tscn" id="5_gun"]
+[ext_resource type="PackedScene" path="res://scene/enemy/drifter.tscn" id="8_drifter"]
+[ext_resource type="PackedScene" path="res://scene/enemy/turret.tscn" id="9_turret"]
+
+[sub_resource type="RectangleShape2D" id="Rect_160x120"]
+size = Vector2(160, 120)
+
+[sub_resource type="RectangleShape2D" id="Rect_480x140"]
+size = Vector2(480, 140)
+
+[node name="RoomOpen" type="Node2D"]
+z_index = -5
+script = ExtResource("1_room")
+roomId = "open"
+groundColor = Color(0.2, 0.224, 0.255, 1)
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="CrateLeft" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-560, -420)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/CrateLeft"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/CrateLeft"]
+shape = SubResource("Rect_160x120")
+
+[node name="CrateRight" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(560, -560)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/CrateRight"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/CrateRight"]
+shape = SubResource("Rect_160x120")
+
+[node name="Container" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(0, -1050)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 120
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Container"]
+polygon = PackedVector2Array(-240, -70, 240, -70, 240, 70, -240, 70)
+color = Color(0.353, 0.306, 0.267, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Container"]
+shape = SubResource("Rect_480x140")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Grunt1" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-720, -600)
+
+[node name="Grunt2" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(700, -700)
+
+[node name="Grunt3" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-240, -1120)
+
+[node name="Grunt4" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(260, -1180)
+
+[node name="Grunt5" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(0, -1320)
+
+[node name="Pickups" type="Node2D" parent="."]
+
+[node name="AmmoPack" parent="Pickups" instance=ExtResource("4_ammo")]
+position = Vector2(0, -700)
+
+[node name="GunBox" parent="Pickups" instance=ExtResource("5_gun")]
+position = Vector2(-300, -1250)
+weaponType = 1
+
+[node name="TurretA" parent="Enemies" instance=ExtResource("9_turret")]
+position = Vector2(-700.0, -1150.0)
+
+[node name="DrifterA" parent="Enemies" instance=ExtResource("8_drifter")]
+position = Vector2(600.0, -1250.0)

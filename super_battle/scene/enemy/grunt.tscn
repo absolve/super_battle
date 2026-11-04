@@ -1,6 +1,11 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://script/enemy/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://script/fsm/state_machine.gd" id="2_statemachine"]
+[ext_resource type="Script" path="res://script/enemy/enemy_states/enemy_chase.gd" id="3_chase"]
+[ext_resource type="Script" path="res://script/enemy/enemy_states/enemy_dead.gd" id="4_dead"]
+[ext_resource type="Script" path="res://script/fx/hit_flash.gd" id="5_hitflash"]
+[ext_resource type="Script" path="res://script/enemy/enemy_states/enemy_shoot.gd" id="6_shoot"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_enemy"]
 radius = 22.0
@@ -31,3 +36,20 @@ shape = SubResource("CircleShape2D_contact")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_enemy")
+
+[node name="HitFlash" type="Node" parent="."]
+script = ExtResource("5_hitflash")
+targets = Array[NodePath]([NodePath("../Body")])
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("2_statemachine")
+initialState = &"Chase"
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("3_chase")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("4_dead")
+
+[node name="Shoot" type="Node" parent="StateMachine"]
+script = ExtResource("6_shoot")

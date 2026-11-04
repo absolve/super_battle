@@ -26,6 +26,10 @@ var direction: Vector2 = Vector2.UP
 ## 发射者槽位（玩家子弹用于计分；-1 表示敌方或无归属）。
 var sourcePlayer: int = -1
 
+## 发射这发子弹的武器（敌人子弹为空）。命中结算交回武器，因为只有武器知道自己有没有
+## 爆炸 / 对甲倍率这类附加效果；武器已被释放（换枪、阵亡）时退回普通扣血。
+var sourceWeapon: Weapon = null
+
 var piercedCount: int = 0
 var lifeLeft: float = 0.0
 
@@ -39,9 +43,16 @@ func setup(newDirection: Vector2, newSourcePlayer: int = -1) -> void:
 	rotation = direction.angle() + PI * 0.5
 
 
-## 命中处理：扣血、记录击杀人、按穿透决定是否回收。
+## 命中处理：交回武器结算，再按穿透决定是否回收。
 func onBodyEntered(body: Node) -> void:
-	if body.has_method("takeDamage"):
+	if sourceWeapon != null and is_instance_valid(sourceWeapon):
+		sourceWeapon.onBulletHit(body, global_position, sourcePlayer)
+	elif body is PlayerCharacter:
+		# 敌方子弹打玩家走这个入口：翻滚的「只挡子弹」无敌帧会返回 false，
+		# 那就整条命中逻辑都不算发生 —— 子弹继续飞，也不消耗穿透次数。
+		if not body.takeBulletDamage(damage, sourcePlayer):
+			return
+	elif body.has_method("takeDamage"):
 		body.takeDamage(damage, sourcePlayer)
 	hitTarget.emit(body)
 	if piercedCount >= pierce:

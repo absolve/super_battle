@@ -1,0 +1,111 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://script/level/level_room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scene/enemy/grunt.tscn" id="2_grunt"]
+[ext_resource type="Script" path="res://script/level/level_obstacle.gd" id="5_obstacle"]
+
+[sub_resource type="RectangleShape2D" id="Rect_480x480"]
+size = Vector2(480, 480)
+
+[sub_resource type="RectangleShape2D" id="Rect_160x120"]
+size = Vector2(160, 120)
+
+[node name="RoomCross" type="Node2D"]
+z_index = -5
+script = ExtResource("1_room")
+roomId = "cross"
+groundColor = Color(0.2, 0.224, 0.255, 1)
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="Block" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(0, -540)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 150
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Block"]
+polygon = PackedVector2Array(-240, -240, 240, -240, 240, 240, -240, 240)
+color = Color(0.353, 0.306, 0.267, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Block"]
+shape = SubResource("Rect_480x480")
+
+[node name="Crate1" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-700, -180)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate1"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate1"]
+shape = SubResource("Rect_160x120")
+
+[node name="Crate2" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(700, -180)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate2"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate2"]
+shape = SubResource("Rect_160x120")
+
+[node name="Crate3" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(-700, -900)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate3"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate3"]
+shape = SubResource("Rect_160x120")
+
+[node name="Crate4" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(700, -900)
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("5_obstacle")
+hitPoints = 60
+
+
+[node name="Visual" type="Polygon2D" parent="Obstacles/Crate4"]
+polygon = PackedVector2Array(-80, -60, 80, -60, 80, 60, -80, 60)
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="Obstacles/Crate4"]
+shape = SubResource("Rect_160x120")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Grunt1" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-300, -160)
+
+[node name="Grunt2" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(360, -320)
+
+[node name="Grunt3" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(-520, -760)
+
+[node name="Grunt4" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(300, -880)
+
+[node name="Grunt5" parent="Enemies" instance=ExtResource("2_grunt")]
+position = Vector2(0, -1000)

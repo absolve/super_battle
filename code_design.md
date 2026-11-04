@@ -405,10 +405,10 @@ super_battle/                  # Godot 工程根（含 project.godot）
 │   ├── sound_manage.gd/.tscn  # SoundManage：BGM + SFX 播放池
 │   └── scene_transition.gd/.tscn  # SceneTransition：淡入淡出切场景
 ├── script/                    # 脚本，按职能分子目录
-│   ├── player/ enemy/ bullet/ level/ ui/ menu/ pickups/ fx/
+│   ├── player/ enemy/ bullet/ level/ ui/ menu/ pickups/ fx/ test/
 │   └── *.gd                   # 跨模块的独立脚本放根部
 ├── scene/                     # 场景，按类别分子目录
-│   ├── player/ enemy/ bullet/ level/ ui/ pickups/ fx/
+│   ├── player/ enemy/ bullet/ level/ ui/ pickups/ fx/ test/
 │   └── *.tscn                 # 被多类共用的基础 / 公共场景放根部
 ├── shader/                    # .gdshader
 ├── lang/                      # language.csv + 生成的 .translation
@@ -423,6 +423,9 @@ super_battle/                  # Godot 工程根（含 project.godot）
    （`preload`、`.tscn` 的 `[ext_resource path]`、`project.godot` 的 autoload、`uid://`、代码里写死的场景路径）。
 2. 只有被多个类别共用的基础场景 / 脚本才留在 `scene/`、`script/` 根部。
 3. 场景名与脚本名对应（`player_character.tscn` ↔ `player_character.gd`），便于查找。
+4. **开发用的两套东西分开放**：`tools/*_probe.tscn` 是**无头断言探针**（CI 式回归，命令行跑、
+   打印 `XXX PROBE: PASS`）；`scene/test/test_*.tscn` 是**手测场景**（编辑器 F6 单跑，用键盘实际手感验）。
+   手测场景一律**继承基础关卡场景 + 覆盖数据入口**（见 §6.2），不许复制一份关卡脚本。
 
 ### 6.2 复用：基础场景 + 基础脚本（本项目约定）
 
@@ -438,6 +441,11 @@ super_battle/                  # Godot 工程根（含 project.godot）
   - 子场景用**继承场景**（Inherit Scene）或直接实例化基础场景；
   - **数值差异优先在子场景的 Inspector 里改**，不要在子脚本里重新赋值；
   - 只有**行为差异**才在子脚本里覆盖方法。
+- **状态机**：玩家与敌人的行为都由 `script/fsm/` 的 `StateMachine` 子节点分发
+  （`script/player/player_states/`、`script/enemy/enemy_states/`）。宿主的 `_physics_process`
+  只跑「与状态无关的公共逻辑」，状态脚本只做转发 + 调宿主的 `updateXxx` / `onXxxEnter` 钩子。
+  ⚠️ 因此**批量开关敌人要用 `process_mode`，不能用 `set_physics_process`**：
+  后者只关本体，关不掉状态机子节点的 tick（房间休眠就是靠这个把预置怪冻住的）。
 - 新增敌人 / 武器时，记得同步登记数据表（`StageData.enemyScenes`、`Game.weaponInfo`），做到“只加数据、不加逻辑”。
 
 ### 6.3 节点与属性设置（本项目约定）
@@ -491,7 +499,8 @@ func _ready() -> void:
 
 ### 6.7 分组与物理层
 
-- 同类对象入组（`player`、`enemy`、`playerBullet`、`enemyBullet`、`pickup`），方便批量查找。
+- 同类对象入组（`player`、`enemy`、`playerBullet`、`enemyBullet`、`pickup`、`destructible`），方便批量查找。
+  `destructible` 只放**可摧毁掩体**（挂 `LevelObstacle` 且 `hitPoints > 0`），爆炸类武器按它结算拆掩体。
 - 物理层严格按 `project.godot` 里 `layer_names` 的定义使用，不要凭记忆写数字。
 
 | 层 | 名称 | 位值 | 用途 |
@@ -516,12 +525,95 @@ func _ready() -> void:
 ### 6.9 4 人本地输入（本项目约定）
 
 - 输入动作在**运行时**由 [autoload/input_manager.gd](super_battle/autoload/input_manager.gd) 注册，
-  命名统一为 `p<玩家序号>_<动作>`：`p1_move_up`、`p1_fire`、`p3_bomb`、`p4_start`……
-  **不要**把这些动作手写进 `project.godot`（几十条 `InputEvent` 难以维护、无法自定义按键）。
+  命名统一为 `p<玩家序号>_<动作>`：`p1_move_up`、`p1_fire`、`p3_bomb`、`p2_weapon_next`、`p4_start`……
+  动作常量集中在 `InputManager.ACTION_*`，加动作 = 加常量 + `ALL_ACTIONS` + 四人键位表，
+  **不要**把这些 InputEvent 硬编码进 `project.godot`（几十条难以维护、无法自定义按键）。
+- 切枪键（`weapon_next` / `weapon_prev`）键盘排在各自开火/必杀键旁边，手柄用左右肩键
+  （`JOY_BUTTON_LEFT_SHOULDER` / `JOY_BUTTON_RIGHT_SHOULDER`，Godot 4 里就是原版的 L1 / R1）。
 - 玩家序号是 **0~3 的槽位**，界面上显示为 `P1~P4`，两者相差 1，转换只允许出现在 UI 文本里。
 - 手柄按**设备号**分派：`device 0` → 1 号玩家……`device 3` → 4 号玩家。
 - 取输入一律走 `InputManager.getMoveVector()` / `isFirePressed()` 等封装，**不要**在玩法脚本里手拼动作名字符串。
 - 玩家槽位配色统一用 `Game.PLAYER_COLORS`，HUD、角色描边、复活点标记共用，不要各写一份。
+
+### 6.10 关卡房间流式加载（本项目约定）
+
+- 关卡**不是一整张地图**：地图切成一串**房间**沿推进方向首尾相接，由 `RoomStreamer`
+  按需加载 / 卸载（相机不后退，房间也只往前流）。
+- 数据分工（照 §6.5「只加数据、不改逻辑」）：
+  - `StageData.levelInfo` 的 `rooms` 写本关房间 id 的顺序，同一间可以重复用；
+  - `StageData.roomInfo` 写房间 id → 场景路径 + `alongLength`（沿推进轴的长度）；
+  - **尺寸只写在 `roomInfo`**，房间场景里不重复声明，免得两处对不上。
+- 房间场景（`scene/level/rooms/*.tscn`，根节点挂 `LevelRoom`）的坐标约定：
+  - 根节点原点 = 玩家进入本房间的**入口边**中心；
+  - 内容沿推进方向铺开：纵向房间占 local 上方 `alongLength`，横向房间占 local 右方；
+  - `scrollAxis` 记录这间房**是按哪个轴搭的**；关卡是另一个轴时 `RoomStreamer` 会在实例化时
+    调 `LevelRoom.alignTo()` 把整间房绕入口原点转过去（纵向房可直接铺进横向关），
+    所以不必为横向关重搭一套房间；只是原本摆在两侧的掩体转过去可能落到视野外，
+    横向关要掩体就再搭一版横向房。
+  - 掩体用 obstacle 层（位值 32）的 `StaticBody2D`，敌人预置在场景里，不需要刷怪参数；
+  - 房间根节点 `z_index = -5`，保证占位地面压在单位下面。
+- 生命周期：关卡每帧调 `RoomStreamer.stream(相机中心在推进轴上的投影)`；
+  窗口内的房间实例化，窗外的整棵释放。只有当前房间（以及刚离开、还在视野里的那间）
+  的预置敌人在跑 AI，前方房间保持休眠，免得怪提前扑过来。
+- 加一间房 = 加一个房间场景 + 往 `roomInfo` 加一条 + 把它排进某关的 `rooms`；
+  关卡长度、相机终点、通关判定都跟着房间链自动算。
+- **相机可用区域 = 已加载房间的并集**：关卡每帧按顺序做四件事
+  （`followCamera` → `roomStreamer.stream` → `battleCamera.setRegion(loadedRect)` → `updatePlayerBounds`），
+  区域比焦点晚一帧是本帧刚加载的房间，下一帧就补上，不会拍到没加载的空地。
+  - 两个轴都夹：要求整段视野不越出区域；某轴的区域比视野短时 `clampCenter` **退化为居中**
+    （窄巷道房间两侧对称露出，读作"墙外是黑的"，比单侧卡死好看）。
+  - 推进轴仍然只进不退（`travelled` 只增），**横向软跟随**：跟存活玩家的中心，多人拉开时相机跟着走。
+  - 玩家活动范围取 `getPlayRect()`（视野 ∩ 区域）再内缩 `viewMargin`，所以人也走不出当前这批房间。
+  - 房间横向宽度写在 `roomInfo.lateralLength`（不写 = 铺满视野）：比视野宽 → 相机有余量横移；
+    比视野窄 → 相机居中并把玩家夹回来。掩体要摆在区域内，超出部分的横向摆位等于浪费。
+
+### 6.11 武器数值口径（本项目约定）
+
+- 武器一律「数据行 + 基类」：数值只写在 `Game.weaponInfo`，`Weapon` 基类里**不写** `if weaponType == ...` 分支。
+- **射程有两种写法，按命中方式取其一**（别混用，也别再造第三种）：
+  - `hitMode = projectile`（弹丸类，本作 7 把全是）→ 写 **`bulletLifeTime`（秒）**，
+    有效射程 = `bulletSpeed × bulletLifeTime`。直接复用 [script/bullet/bullet.gd](super_battle/script/bullet/bullet.gd)
+    已有的 `lifeTime` 字段，不需要新代码路径；调弹速时射程自动跟着变（`Weapon` 出膛时写入，场景值只当兜底）。
+  - `hitMode = beam`（激光 / 射线，以后扩武器时才有）→ 写 **`rangePx`（像素）**，因为没有飞行时间。
+- 特殊命中效果走**钩子 + 继承场景**，不进基类：`Weapon.onBulletHit(target, hitPos, sourcePlayer)` 是默认结算，
+  `rocket.tscn` / `tesla.tscn` 继承 `weapon.tscn` 覆盖它（爆炸区域伤害、对 `Enemy.ArmorType` 的倍率）。
+  用哪个场景由数据表的 `scene` 键决定，`PlayerCharacter.instantiateWeaponScene()` 按它 `load`。
+- 掩体耐久**只有爆炸 / 爆破入口**（`LevelObstacle.takeExplosionDamage`），普通子弹不吃耐久（否则掩体没意义）；
+  结构墙 `hitPoints = 0`，拆了玩家会掉出房间区域。
+- 弹药语义：`ammo = -1` 表示无限弹（手枪）。`Weapon.refill()` 是「弹药包补给」与「捡同款补弹」
+  **共用的唯一入口**，玩家侧只暴露 `refillCurrentWeapon()`；不要让拾取物直接改武器字段。
+- 枪包规则（容量 / 同款补弹 / 满包替换 / 打空回落）全部留在 `PlayerCharacter`，武器本身不感知枪包。
+  满包时被换下的那把要**掉回地面且保留剩余弹药**，不许销毁 —— 规则见
+  [feature_design.md §4.5](feature_design.md#45-满包替换与回捡)。
+
+### 6.12 检查点与续关（本项目约定）
+
+- 检查点**是房间的属性，不是关卡里散落的坐标点**：`StageData.levelInfo[n].checkpointRooms` 写哪些房间下标算检查点，
+  关卡在 `RoomStreamer.roomEntered` 里按 `roomStarts[index] + CHECKPOINT_INROOM_ALONG` 记录复活投影。
+  加检查点只改数据表，不碰关卡逻辑。
+- 复活位置 = 检查点投影 + 自己的**车道**（`laneOffsets`）；出生与检查点复活共用同一套车道，四人不会叠在一点。
+- **续关画面只管演出与按键，复位逻辑在关卡**：`ContinueScreen` 发 `continueRequested` / `giveUpRequested`，
+  `base_level.onContinueRequested()` 恢复命数、清场、复位相机与人；`process_mode = ALWAYS` 才能在整关暂停时收到按键。
+- **续关时先把房间窗口拉回检查点，再摆人**：玩家活动范围 = 视野 ∩ 已加载房间，
+  沿用死前的区域会把刚放到检查点的人立刻夹到区域边缘（`base_level.onContinueRequested` 里的 `stream` + `setRegion`）。
+- 续关**只累加 `UserData.continueCount`，不给任何难度乘数** —— 这条是设计承诺（人人可通关），
+  以后接 M1-5 警戒等级时也别顺手把续关算进难度里。
+
+### 6.13 战役数据与进度（本项目约定）
+
+- 三层数据：**区 → 小关 → 房间**，全在 `StageData` 的三张 const 表里（`districtInfo` / `levelInfo` / `roomInfo`）。
+  小关编号 = **区代号 × 100 + 小关序号**（区代号按地名固定，与推进顺序无关），推进顺序只写在 `districtInfo.order`。
+- **「这关能不能打」由数据本身回答**：`isLevelPlayable(code)` 只看 `rooms` 非空。没做内容的关（现在的 203 / 209）
+  房间清单留空即可，大地图与连打自动拦住玩家 —— **不要另加 `enabled` / `todo` 这类布尔开关**，两处状态早晚会不一致。
+- 滚动方向逐关写在 `levelInfo[code].scrollAxis`（`"vertical"` / `"horizontal"`），`base_level._ready` 读它覆盖场景默认值。
+- 进度**只存一张表**：`UserData.clearedLevels`（已通关的小关编号）。当前区、当前小关、是否控制某区
+  全部由它推导（`getCurrentDistrictCode` / `getCurrentLevelCode` / `isDistrictCleared`）。
+  别再造 `unlockedLevels` 这种「第二份进度」—— 编号跳成 2xx 之后 `+1` 解锁根本说不通。
+- 连打口径（level_design §2）：结算后 `base_level.nextScenePath()` 决定去向 —— 同区还有能打的关就直接进下一关，
+  失败 / 区打完 / 下一关没内容才回大地图。
+- 大地图（`campaign_map.gd`）**只显示与派发**，不持有进度状态；区节点在场景里按区代号命名（`District_2`），
+  脚本按 `order` 收集，数据表加了区但场景没摆节点时直接 `push_error`，不静默少画一区。
+- 摆房间链时的数据坑：**`depot` 带尽头墙，只能放链尾**，放中间会把推进路堵死（`tools/room_probe` 横向相实测卡死过）。
 
 ---
 
@@ -546,6 +638,13 @@ func _ready() -> void:
 - 固定路径的资源用 `preload()`（编译期加载，路径写错立即报错）。
 - 只有运行期才知道路径的才用 `load()`（如按 id 从数据表查场景）。
 - 频繁复用的场景 / 资源缓存到常量或成员变量，不要每次使用都 `load`。
+- ⚠️ 冷加载噪声（已知，别当 bug 追）：`enemy.gd` 在 `preload` 链里第一个解析到 `bullet.gd` 时，
+  控制台会先打一行 `Parse Error: [ext_resource] referenced non-existent resource`（跑 `enemy_probe` / 直接加载
+  `grunt.tscn` 必现），但资源随后仍被正确挂载 —— 实测 `instantiate()` 出来的子弹 `get_script()` 就是 `bullet.gd`。
+  同一进程里只要先加载过关卡 / 玩家（`weapon.gd` 已把 `bullet.tscn` 拉进缓存）就不再打这行。
+- ⚠️ 探针收尾：`add_child(关卡场景)` 之后**别立刻 `quit()`**，也要等十几帧。房间的 `load_threaded_request`
+  还在路上就被打断，退出日志会冒出一堆 `Parse Error / Failed loading ... / N ObjectDB instances leaked`。
+  同样别在预载飞行中途 `queue_free()` 整个关卡 —— `tools/campaign_probe` 就是这么从「干净」变成 3 个泄漏对象的。
 - 节点引用一律用 `$` / `get_node()`，不要把路径字符串散落在逻辑里。
 
 ### 7.4 信号连接
@@ -567,6 +666,10 @@ func _ready() -> void:
 - `await` 之后要确认目标仍然有效，再继续操作。
 - 释放节点用 `queue_free()`，不要直接 `free()`（除非确定当帧不再使用）。
 - 需要下一帧再执行用 `call_deferred()`。
+- ⚠️ **在物理回调里改物理状态必须走 deferred**：`body_entered` / 命中结算正处于物理 flush 期间，
+  此时 `add_child`（新碰撞体入树）、删节点、改 `monitoring` 都会让引擎报
+  `Can't change this state while flushing queries`。一律用 `call_deferred("add_child", …)` /
+  `set_deferred("monitoring", true)`（实例：丢枪 `PlayerCharacter.dropWeapon`、拾取落地免疫期 `Pickup`）。
 - 暂停：`get_tree().paused = true` 只对 `PROCESS_MODE_PAUSABLE` 生效；暂停菜单自身必须在场景里把
   `process_mode` 设为 `ALWAYS`，否则暂停后它也不再收输入（见 `pause_menu.tscn`）。
 

@@ -1,0 +1,218 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/ui/campaign_map.gd" id="1_campaign"]
+
+[node name="CampaignMap" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_campaign")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.086, 0.094, 0.125, 1)
+
+[node name="Title" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 36.0
+offset_bottom = 110.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 56
+text = "CAMPAIGN MAP"
+horizontal_alignment = 1
+
+[node name="MapArea" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Route" type="Line2D" parent="MapArea"]
+width = 6.0
+default_color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="District_2" type="ColorRect" parent="MapArea"]
+offset_left = 90.0
+offset_top = 430.0
+offset_right = 350.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_2"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Mawei"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_2"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="District_1" type="ColorRect" parent="MapArea"]
+offset_left = 390.0
+offset_top = 300.0
+offset_right = 650.0
+offset_bottom = 410.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_1"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Changle"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_1"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="District_4" type="ColorRect" parent="MapArea"]
+offset_left = 690.0
+offset_top = 430.0
+offset_right = 950.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_4"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Cangshan"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_4"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="District_5" type="ColorRect" parent="MapArea"]
+offset_left = 990.0
+offset_top = 300.0
+offset_right = 1250.0
+offset_bottom = 410.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_5"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Taijiang"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_5"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="District_3" type="ColorRect" parent="MapArea"]
+offset_left = 1290.0
+offset_top = 430.0
+offset_right = 1550.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_3"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Jin'an"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_3"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="District_6" type="ColorRect" parent="MapArea"]
+offset_left = 1560.0
+offset_top = 300.0
+offset_right = 1820.0
+offset_bottom = 410.0
+mouse_filter = 2
+color = Color(0.29, 0.329, 0.384, 1)
+
+[node name="NameLabel" type="Label" parent="MapArea/District_6"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "Gulou"
+
+[node name="StatusLabel" type="Label" parent="MapArea/District_6"]
+offset_left = 12.0
+offset_top = 58.0
+offset_right = 248.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "LOCKED"
+
+[node name="TargetLabel" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 620.0
+offset_bottom = 676.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.953, 0.639, 0.106, 1)
+text = "TARGET"
+horizontal_alignment = 1
+
+[node name="LevelRow" type="HBoxContainer" parent="."]
+offset_left = 480.0
+offset_top = 700.0
+offset_right = 1440.0
+offset_bottom = 764.0
+theme_override_constants/separation = 48
+alignment = 1
+
+[node name="Hint" type="Label" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -84.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "FIRE deploy / BOMB title"
+horizontal_alignment = 1

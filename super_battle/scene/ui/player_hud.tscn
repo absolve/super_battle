@@ -1,54 +1,148 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://script/ui/player_hud.gd" id="1_hud"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.141, 0.133, 0.204, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.29, 0.329, 0.384, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_barBg"]
+bg_color = Color(0.078, 0.063, 0.075, 0.85)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_barFill"]
+bg_color = Color(1, 1, 1, 1)
+
 [node name="PlayerHud" type="Control"]
-custom_minimum_size = Vector2(300, 108)
-offset_right = 300.0
-offset_bottom = 108.0
+custom_minimum_size = Vector2(420, 156)
+layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("1_hud")
 
-[node name="Panel" type="ColorRect" parent="."]
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 108.0
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.45)
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
 [node name="Accent" type="ColorRect" parent="."]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
 offset_right = 8.0
-offset_bottom = 108.0
+grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 1)
 
 [node name="NameLabel" type="Label" parent="."]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 0.62
 offset_left = 18.0
-offset_top = 6.0
-offset_right = 288.0
-offset_bottom = 40.0
-theme_override_font_sizes/font_size = 26
+offset_top = 10.0
+offset_bottom = 42.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
 text = "P1"
 vertical_alignment = 1
 
+[node name="LivesLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.62
+anchor_right = 1.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 42.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 22
+text = "x2"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="HealthBar" type="ProgressBar" parent="."]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 0.62
 offset_left = 18.0
-offset_top = 44.0
-offset_right = 282.0
-offset_bottom = 66.0
+offset_top = 50.0
+offset_bottom = 72.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_barBg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_barFill")
 max_value = 100.0
 value = 100.0
 show_percentage = false
 
-[node name="InfoLabel" type="Label" parent="."]
-layout_mode = 0
+[node name="HpLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.62
+anchor_right = 1.0
+offset_top = 48.0
+offset_right = -14.0
+offset_bottom = 74.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "100/100"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="WeaponLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 0.62
 offset_left = 18.0
-offset_top = 70.0
-offset_right = 288.0
-offset_bottom = 102.0
+offset_top = 80.0
+offset_bottom = 118.0
+grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
 text = ""
 vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.62
+anchor_right = 1.0
+offset_top = 80.0
+offset_right = -14.0
+offset_bottom = 118.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 22
+text = ""
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="StaminaLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 0.62
+offset_left = 18.0
+offset_top = 124.0
+offset_bottom = 152.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "Roll"
+vertical_alignment = 1
+
+[node name="StaminaRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.62
+anchor_right = 1.0
+offset_top = 124.0
+offset_right = -14.0
+offset_bottom = 152.0
+grow_horizontal = 2
+theme_override_constants/separation = 6
+alignment = 2
