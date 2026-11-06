@@ -11,7 +11,7 @@
 | 推进方式 | 俯视角素材**与滚动方向无关**：关卡可纵向推进（画面上移）也可横向推进（画面右移），素材不用重画 |
 | 像素网格 | **4 px**（所有线条与尺寸取 4 的倍数） |
 | 调色板 | **AAP-64**（64 色，Aseprite 内置） |
-| 文档版本 | v2.1（2026-10-05） |
+| 文档版本 | v2.2（2026-11-06，新增 §7 体素 + AI 管线可行性评估，未采纳） |
 
 ---
 
@@ -284,10 +284,95 @@ sound/
 
 ---
 
-## 7. 待确认问题
+## 7. 体素建模 + AI 驱动管线（可行性评估，⬜ 未采纳）
+
+> 2026-11-06 记录。**本章不改变 [§1](#1-像素规格) 已确定的制作方式**（在 Aseprite 里用 4 px 网格直画成品尺寸）；
+> 它回答的是另一个问题：美术量太大时，值不值得再加一条"可脚本化"的生产线。
+> 结论：**有条件 Go，但两个前提还没验证**，所以只留评估，不动工具链、不改规范。
+
+### 7.1 起因：把 §5 的帧数乘出来是多少张
+
+| 资产 | 算法 | 张数 |
+| --- | --- | --- |
+| 玩家 4 人 | 8 向 ×（走路 4 + 待机 2 + 射击 1 + 阵亡 1）= 64 帧/人 | **256** |
+| 人形敌人（grunt / heavy / spy / guard…） | 8 向 ×（走路 4 + 攻击 2）= 48 帧/种 | 每种 48 |
+| 小型兽形（drifter / scout / bomber…） | 4 向 ×（移动 4 + 扑咬 3）= 28 帧/种 | 每种 28 |
+| 关卡设施（[level_design.md §9](level_design.md#9-关卡设施与交互物) 五组 30+ 项） | 多为静态，但俯视角 4~8 朝向的剪影仍要分别可辨 | **100+** |
+| Boss 6 只 | 320~640 px、2~3 阶段 | 每种 40~120 |
+| 武器 7 种 | 手持 + 地面掉落 + UI 图标 | 约 30 |
+
+合计 **600 张以上**。手工在编辑器里逐张摆朝向，做到第 10 个资产时原点、脚位、尺寸一定会飘 ——
+这是**量变的必然**，不是纪律问题。所以"渲图环节必须可脚本化"是这条管线成立与否的硬条件。
+
+### 7.2 候选工具与"能被 AI / 代码驱动"的程度
+
+| 工具 | 可驱动方式 | 备注 |
+| --- | --- | --- |
+| **Blockbench** + MCP 插件 | 4 个第三方实现（[jasonjgardner/blockbench-mcp-plugin](https://github.com/jasonjgardner/blockbench-mcp-plugin)、[sosadly/blockbench-mcp](https://github.com/sosadly/blockbench-mcp)、[FFriends/Blockbench-MCP](https://glama.ai/mcp/servers/FFriends/Blockbench-MCP)、[enfp-dev-studio/blockbench-mcp](https://github.com/enfp-dev-studio/blockbench-mcp)）；能力面含 cubes / mesh / UV / 贴图 / 动画 / **截图** | 需 Blockbench 4.0+ 与 Node 18+，且**必须开着 GUI**（MCP 连的是运行中的实例）；[格式与插件体系](https://blockbench.net/wiki/blockbench/formats/)是 JSON，可纯代码生成模型 |
+| **Blender**（无头） | `bpy` 全 API + `blender -b -P xxx.py`，相机/灯/尺寸/导出全在代码里 | **命令行运行，不开 GUI**；体素化与限幅渲图都能做，是本表里唯一能保证"同参数重复出图"的一条 |
+| **Aseprite** | [官方 CLI](https://www.aseprite.org/cli/) + Lua 批量（[批量导出实践](https://community.aseprite.org/t/batch-scripting-and-exportspritesheet/17395)） | 不是体素工具，但**最后一段（remap 色板、trim、拼图集、出 tags）它最可控**，与 §1/§6 天然契合 |
+| **MagicaVoxel** | 只有[官方 Commands](https://ephtracy.github.io/index.html?page=mv_commands) 入口，建模本身无脚本 API | 定位只能是"手搓 + 修饰"；批处理靠外围 |
+| 外围批处理 | [Vengi VoxConvert](https://vengi-voxel.de/)（转换/缩放/旋转）、[spotvox](https://github.com/tommyettinger/spotvox)（.vox → 像素画，命令行可选倍率） | 替 MagicaVoxel 跑腿；spotvox 主打等距/卡通风，**能否出正交顶视未验证** |
+| AI 直接产 .vox | [text2vox](https://github.com/gfodor/text2vox)（Cog 服务，可脚本批量调用）、[VoxAI](https://www.voxelai.ai/)、[VoxiGen](https://voxigen.io/en/ai-voxel-editor)、[3D AI Studio](https://www.3daistudio.com/blog/creating-3d-pixelized-models-a-quick-guide-to-voxel-modeling-with-3d-ai-studio) | 适合出草稿与剪影；**同 prompt 不保证同结果**，不能当终稿来源 |
+| 程序化写 .vox | [py-vox-io](https://github.com/gromgull/py-vox-io)（作者已弃更，指向 MidVoxIO）、[magicax](https://hex.pm/packages/magicax)、[VoxSharp](https://gitblind.noratr.app/topics/magica-voxel) | 规则形体（油桶、集装箱、炮台、水泥墩）可由参数表直接生成 |
+
+### 7.3 与本文既有决定的冲突（不解决就会返工）
+
+1. **§1 已写"制作方式已确定，不再备选"**。采纳体素路线等于**重开这个决定**，不是补充。
+2. **§4 硬性规则 1/2/3**（只用 AAP-64 的 64 色、单张 ≤16 色、渐变用抖动不用半透明）与体素/3D 渲染的
+   明暗、AO、阴影、亚像素边缘**直接撞车**：渲出来必然带调色板外的中间色。
+3. **§1 的 4 px 网格与成品尺寸**（角色 96×96、tile 128×128）要求渲图后再**量化对齐**，不是渲完就能进引擎。
+4. §5 的帧数与 §6 的目录/命名不受本决定影响 —— 管线只能改"图从哪来"，**不能改"引擎怎么吃"**。
+
+→ 所以一旦采纳，必须补两道硬工序：**渲图后 remap 到 AAP-64** + **按 4 px 网格对齐 / trim**，
+并把这两步做成自动校验（尺寸、色数、原点偏移），纳入和探针同一套验收口径。
+
+### 7.4 风格分叉（真正的决定点）
+
+| 方案 | 与现有规范 | 代价与收益 |
+| --- | --- | --- |
+| **A. 维持平涂限色**（现方案，Aseprite 直画） | 完全符合 §1 / §4 | 体素与 AI 只能当参考图，量产速度不变 |
+| **B. 体素渲图带光影** | **违反 §4 规则 1~3**，本节要改写 | 建模可批量、观感更"厚"，但风格统一性风险最高 |
+| **C. 折中：渲"正交无光影"底稿 → remap → Aseprite 手修描边** | 基本守得住 §4 | 每个资产两道工；估计省 40~60% 工时，且描边与色板仍由人把关 |
+
+评估倾向：**先按 C 验证**。B 只有在"整体风格决定改成带光影体素风"时才成立，那是全局改写本文的大决定。
+
+### 7.5 可行性判断
+
+- **技术可行性**：成立。Blockbench MCP 确实存在（4 个实现），Qoder 侧可加自定义 MCP 连接器。
+- **两个未验证前提**（任一不通就走回 A 或 Blender 单线）：
+  1. **渲图能否参数化** —— 正交顶视角度、透明底、指定输出像素尺寸、8 朝向同源；
+  2. **remap 后 §4 还守不守得住** —— 描边连续、4 px 对齐、单张色数不超。
+- **资产分档匹配**：设施类**高**（规则方块，且 bounds / 色号可程序校验，最适合当第一个试验品）；
+  角色与敌人**中**（8 向一致性依赖渲图环节）；Boss 的有机形体、特效帧、UI 字体**低**（不归这类工具管）。
+- **口径冲突**：MCP 驱动的是运行中的 Blockbench GUI 实例，与"公司机不开 GUI"的既有口径冲突；
+  若要试，口径得明确为"**你启动应用、我只通过 MCP 驱动**"，Godot 侧继续 headless 不变。
+- **诚实标注**：本机无法抓取 GitHub 正文（对 `github.com` / `raw.githubusercontent.com` 直连无返回），
+  上表的能力细节来自检索摘要，**插件的工具名与参数、spotvox 的相机可控性都需在落地前实测**，别按本文当既成事实。
+
+### 7.6 最小验证清单（⬜ 全部未执行）
+
+1. 挑**油桶**一个资产：MCP 建模 → 导出/截图 → 检查尺寸可指定、透明底、角度可指定。
+2. 同一资产导 glTF → Blender 无头渲 8 朝向 → 对比质量与工时。
+3. 两条各出 1 张 → remap AAP-64 → 放进 `sprite/prop/` 并在 `scene/test/test_player.tscn` 里显示，目视判定是否守得住 §4。
+
+**判定标准**：任一环节需要人在编辑器里反复手调参数才能对齐，就视为不通过（那等于把工作量从画画转移到摆相机）。
+
+### 7.7 当前状态
+
+- ⬜ **仅评估**：未安装任何工具、未接入 MCP、未改变美术制作方式；正式资产仍按 §1 走 Aseprite 4 px 直画。
+- 若验证通过并采纳，需连带改动的位置已在 §7.3 / §7.4 列出，另加两处：
+  §6 目录要新增源文件目录（如 `source/vox/` 或 `source/bb/`）与 Git LFS 约定（`.bbmodel` 的 diff 不友好，
+  别让它污染机制开发的提交历史）；[dev_plan.md](dev_plan.md) M2 要加一条"美术生产管线工具链"里程碑项。
+
+---
+
+## 8. 待确认问题
 
 1. **是否做角色独立立绘**（选人界面 / 结算 / 剧情插画）？建议：做，按 AAP-64 手绘静态插画。
 2. **UI 是否用像素字体**？建议：使用开源像素字体（如 Fusion Pixel / Zpix），并做 9-slice 面板。
 3. **AAP-64 是「先用」**：若后续换调色板，只需替换调色板文件与本表色值，语义分组（§3）保持不变即可。
+4. **风格分叉选 A / B / C**（见 §7.4）？这决定 §1 的"制作方式不再备选"要不要重开，也决定 §4 要不要加 remap 与对齐工序。
+5. **是否接受"你开 Blockbench、我经 MCP 驱动"的 GUI 口径变更**（§7.5）？不接受则该路线只能在你自己的机器上验证。
 
 > 已确定：**逻辑分辨率固定 1920 × 1080（横版），4 px 网格，不予缩小放大**（见 §1）。
