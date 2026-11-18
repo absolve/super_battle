@@ -11,7 +11,7 @@
 | 推进方式 | 俯视角素材**与滚动方向无关**：关卡可纵向推进（画面上移）也可横向推进（画面右移），素材不用重画 |
 | 像素网格 | **4 px**（所有线条与尺寸取 4 的倍数） |
 | 调色板 | **AAP-64**（64 色，Aseprite 内置） |
-| 文档版本 | v2.2（2026-11-06，新增 §7 体素 + AI 管线可行性评估，未采纳） |
+| 文档版本 | v2.4（2026-11-07，§7 油桶建模→透明底出图实测通过，记录零点击启动配方与两个出图坑） |
 
 ---
 
@@ -284,7 +284,7 @@ sound/
 
 ---
 
-## 7. 体素建模 + AI 驱动管线（可行性评估，⬜ 未采纳）
+## 7. 体素建模 + AI 驱动管线（工具链已接入，⬜ 制作方式未采纳）
 
 > 2026-11-06 记录。**本章不改变 [§1](#1-像素规格) 已确定的制作方式**（在 Aseprite 里用 4 px 网格直画成品尺寸）；
 > 它回答的是另一个问题：美术量太大时，值不值得再加一条"可脚本化"的生产线。
@@ -347,20 +347,52 @@ sound/
   角色与敌人**中**（8 向一致性依赖渲图环节）；Boss 的有机形体、特效帧、UI 字体**低**（不归这类工具管）。
 - **口径冲突**：MCP 驱动的是运行中的 Blockbench GUI 实例，与"公司机不开 GUI"的既有口径冲突；
   若要试，口径得明确为"**你启动应用、我只通过 MCP 驱动**"，Godot 侧继续 headless 不变。
-- **诚实标注**：本机无法抓取 GitHub 正文（对 `github.com` / `raw.githubusercontent.com` 直连无返回），
-  上表的能力细节来自检索摘要，**插件的工具名与参数、spotvox 的相机可控性都需在落地前实测**，别按本文当既成事实。
+- **已实测（2026-11-07）**：`git clone` 通、`npm install && npm run build` 通、MCP stdio 握手通、
+  工具清单 **71 个**（README 写 70，实测 71）。此前"无法抓取 GitHub 正文"只对 HTTP 直连成立，git 协议可用。
+- **仍未实测**：插件的工具参数语义、渲图能否参数化（正交顶视 / 透明底 / 指定像素尺寸 / 8 朝向同源）、
+  remap 后 §4 守不守得住。spotvox 的相机可控性同样未验证，别按本文当既成事实。
 
-### 7.6 最小验证清单（⬜ 全部未执行）
+### 7.6 最小验证清单（🔶 第 0、1 步已完成，第 2、3 步未执行）
 
-1. 挑**油桶**一个资产：MCP 建模 → 导出/截图 → 检查尺寸可指定、透明底、角度可指定。
-2. 同一资产导 glTF → Blender 无头渲 8 朝向 → 对比质量与工时。
-3. 两条各出 1 张 → remap AAP-64 → 放进 `sprite/prop/` 并在 `scene/test/test_player.tscn` 里显示，目视判定是否守得住 §4。
+0. ✅ **工具链就位**：仓库克隆到 `F:\tools\blockbench-mcp`（**不在 C 盘**），依赖与构建产物同样在 F 盘
+   （npm 缓存指到 `F:\tools\.npm-cache`）；Qoder 用户级 MCP 连接器 `blockbench` 已添加，状态 `ready`、71 工具。
+1. ✅ **油桶走通建模→出图**（2026-11-07 实测）：`new_project(free)` → `add_cubes`(6 块) → `measure_model`
+   → `save_project`(.bbmodel) → `export_model`(gltf，buffer 内嵌) → 出图，全链路无人工干预。
+   三个硬指标的结论：
+   - **尺寸可指定**：✅ 自己开 canvas 定宽高（实测 128×128）。
+   - **透明底**：✅ 但**不是** `screenshot` 工具的默认行为（它是不透明底）；要走 `execute_script`：
+     `scene.background = null` + `renderer.setClearColor(0x000000, 0)`。实测角上 alpha=0、模型上 alpha=255。
+   - **角度可指定**：✅  named view（`screenshot` 的 `view`）或自己摆相机；正交用
+     `preview.setProjectionMode(true)`（**没有** `setOrthographic` 这个方法）。
+   - **两个坑**：① 指北针 `preview.orbit_gizmo` **不在** `Canvas.gizmos` 里，`Canvas.withoutGizmos()` 藏不掉它，
+     必须手动 `visible=false`，否则 alpha 包围盒会把箭头算进去（实测包围盒从 401×400 变成 401×524）；
+     ② 紧取景靠 **alpha 包围盒裁剪**，不要指望相机 zoom（默认取景模型只占画面约 1/4）。
+   - 产物在 `F:\tools\bb_out\`：`barrel_oil.bbmodel`、`barrel_oil.gltf`、`barrel_top_128.png`。
+2. ⬜ 同一资产导 glTF → Blender 无头渲 8 朝向 → 对比质量与工时。
+3. ⬜ 两条各出 1 张 → remap AAP-64 → 放进 `sprite/prop/` 并在 `scene/test/test_player.tscn` 里显示，目视判定是否守得住 §4。
 
 **判定标准**：任一环节需要人在编辑器里反复手调参数才能对齐，就视为不通过（那等于把工作量从画画转移到摆相机）。
+第 1 步按此标准**通过**：出图脚本是一次调好、之后复用的代码，不需要人进编辑器摆相机。
 
 ### 7.7 当前状态
 
-- ⬜ **仅评估**：未安装任何工具、未接入 MCP、未改变美术制作方式；正式资产仍按 §1 走 Aseprite 4 px 直画。
+- ✅ **可复现的零点击启动配方**（实测，全部在 F 盘）：
+  1. `D:\Blockbench\Blockbench.exe --user-data-dir=F:/tools/blockbench-data --remote-debugging-port=9222`
+     （`--user-data-dir` 把配置、插件目录、权限文件整体挪出 C 盘）；
+  2. 插件放 `F:\tools\blockbench-data\plugins\blockbench_mcp.js`。**注意：丢进目录不会自动加载**——
+     Blockbench 只加载注册进 `installed_plugins` 的条目；实测经 CDP（9222）执行
+     `new BBPlugin('blockbench_mcp').loadFromFile({ path: 'F:/tools/.../blockbench_mcp.js' }, false)` 完成侧载。
+     **路径必须用正斜杠**：反斜杠在 JS 字符串里被当转义吃掉（`\t` `\b`），会 ENOENT；
+  3. 预置 `F:\tools\blockbench-data\plugin_permissions.json` =
+     `{"blockbench_mcp":{"allowed":{"net":true,"fs":true}}}`，免掉网络/文件权限对话框；
+  4. 插件 autostart 默认开 → `127.0.0.1:8787/ping` 返回 `{"ok":true,...}` 即通。
+- 🔶 **驱动通道有两条**：MCP 连接器 `blockbench`（71 工具，建模/导出/截图）；
+  `execute_script` 里**没有 `require`**，写盘要靠 CDP 把 dataURL 取回 Node 侧落盘
+  （脚本在 `F:\tools\cdp.mjs`、`F:\tools\bb_call.mjs`）。
+- ⬜ **美术制作方式未改变**：正式资产仍按 §1 走 Aseprite 4 px 直画，§7 整节仍是"未采纳"；
+  第 2、3 步（Blender 8 朝向、remap 进 Godot）没做，采纳与否仍待拍板。
+- **GUI 口径**：本次经用户明确授权"我来启动并全程驱动"才开的窗口，测完已 `taskkill` 关闭（0 残留进程）。
+  属**按次授权**，不改变"公司机默认不开 GUI"的默认口径。
 - 若验证通过并采纳，需连带改动的位置已在 §7.3 / §7.4 列出，另加两处：
   §6 目录要新增源文件目录（如 `source/vox/` 或 `source/bb/`）与 Git LFS 约定（`.bbmodel` 的 diff 不友好，
   别让它污染机制开发的提交历史）；[dev_plan.md](dev_plan.md) M2 要加一条"美术生产管线工具链"里程碑项。
